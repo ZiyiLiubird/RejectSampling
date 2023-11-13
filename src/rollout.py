@@ -10,17 +10,17 @@ from models.utils import ChatRequire
 from models.utils import Message
 from models.prepost import Vicuna11SepStyle, AlpacaSepStyle, Conversations 
 from models.model import LlamaModelForScore, get_single_reward_from_model
-from utils import get_chat
 from vllm import SamplingParams
 
 
 class Rollout:
     def __init__(self, raw_data, model_tokenizer,
-                 max_context_tokens, temperature, do_sample, sample_k, save_path, model=None):
+                 max_context_tokens, max_generate_tokens, temperature, do_sample, sample_k, save_path, model=None):
         
         self.model_tokenizer = model_tokenizer
         self.model = model
         self.max_context_tokens = max_context_tokens
+        self.max_generate_tokens = max_generate_tokens
         self.temperature = temperature
         self.do_sample = do_sample
         self.sample_k = sample_k
@@ -95,7 +95,7 @@ class Rollout:
             character_name = bot_info["character_name"]
             output_data_piece["conversations"].append({"from": "instruction", "value": system_instruction})
 
-            for content in dialogue_list:
+            for content in reversed(dialogue_list):
                 if content["speaker_type"] == 1:
                     cur_message = Message(role='assistant', content=content['content'], name=character_name)
                     chat_require.messages.append(cur_message)
@@ -114,7 +114,7 @@ class Rollout:
 
     def rollout(self,):
         outputs_list = []
-        sampling_params = SamplingParams(temperature=self.temperature, max_tokens=self.max_context_tokens)
+        sampling_params = SamplingParams(temperature=self.temperature, max_tokens=self.max_generate_tokens)
         for i in range(self.sample_k):
             model_outputs = self.model.generate(self.prompt_list, sampling_params)
             outputs = []
@@ -124,36 +124,6 @@ class Rollout:
             outputs_list.append(outputs)
         
         self.outputs_list = outputs_list
-
-
-    def get_chat(self, prompt):
-        prompt_ids = self.model_tokenizer.encode(prompt)
-        generate_params = {
-            'inputs': prompt_ids,
-            'do_sample': self.do_sample,
-            'max_new_tokens': self.max_context_tokens,
-            'temperature': self.temperature,
-        }
-        model_output_ids = self.model.generate(**generate_params)
-        model_output = self.model_tokenizer.decode(
-            model_output_ids[0], skip_special_tokens=True
-        ).strip()
-        return model_output
-
-
-    # def _filter(self, prompt, response):
-    #     pbar = tqdm(self.output_data_list)
-    #     for index, data_piece in enumerate(pbar):
-    #         dialogue_list = data_piece['conversations']
-    #         character_name = data_piece['character_name']
-    #         for content in dialogue_list:
-    #             if content['from'] == character_name:
-    #                 content['value'] = []
-
-    #     score = get_single_reward_from_model(self.reward_model, self.reward_tokenizer,
-    #                                          response, message_str=prompt, max_length=self.max_context_tokens,
-    #                                          device=self.reward_device)
-    #     return score
 
     def save_samples(self,):
 
