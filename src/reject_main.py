@@ -49,10 +49,7 @@ def main(args_dict,):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', default='/alg_vepfs/public/models/online_model/joyland/llama-13b-4k-teatime-mix-bluemoon_pretrain20231012-0226', type=str)
     parser.add_argument('--reward_model_path', default="/alg_vepfs/public/models/rm1017", type=str)
-    parser.add_argument('--data_path', default='/alg_vepfs/public/datasets/joyland/7days/7days15k_2.json', type=str)
-    parser.add_argument('--sample_save_path', default='/alg_vepfs/public/LZY/sample_data', type=str)
     parser.add_argument('--sample_load_path', default='/alg_vepfs/public/LZY/sample_data/2023-11-09/sample1.json', type=str)
     parser.add_argument('--sample_reward_save_path', default='/alg_vepfs/public/LZY/sample_data', type=str)
     parser.add_argument('--sft_save_path', default='/alg_vepfs/public/LZY/sft_data', type=str)
@@ -60,7 +57,6 @@ if __name__ == '__main__':
     parser.add_argument('--model_max_tokens', default=4096, type=int)
     parser.add_argument('--max_context_tokens', default=3900, type=int)
     parser.add_argument('--num_process', default=8, type=int)
-
 
     args = parser.parse_args()
     args_dict = vars(args)

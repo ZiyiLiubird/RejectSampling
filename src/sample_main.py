@@ -1,16 +1,12 @@
 import argparse
 import json
 import os
-import copy
-import time
 from datetime import datetime
 import torch
 import transformers
-from vllm import LLM, SamplingParams
+from vllm import LLM
 
-from models.model import LlamaModelForScore, get_single_reward_from_model
 from rollout import Rollout
-from reject import Reject
 
 
 def main(args_dict,):
@@ -31,11 +27,6 @@ def main(args_dict,):
     args_dict['raw_data'] = raw_data[:args_dict['sample_num']]
     args_dict['sample_save_path'] = os.path.join(sample_save_path, "sample3.json")
 
-    sample_reward_save_path = os.path.join(args_dict['sample_reward_save_path'], current_date)
-    if not os.path.exists(sample_reward_save_path):
-        os.makedirs(sample_reward_save_path)
-    args_dict['sample_reward_save_path'] = os.path.join(sample_reward_save_path, "sample_reward2.json")
-
     rollout = Rollout(raw_data=args_dict['raw_data'], model_tokenizer=model_tokenizer, max_context_tokens=args_dict['max_context_tokens'],
                       temperature=args_dict['temperature'],
                       do_sample=args_dict['do_sample'], sample_k=args_dict['sample_k'],
@@ -52,13 +43,8 @@ def main(args_dict,):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', default='/alg_vepfs/public/models/online_model/joyland/llama-13b-4k-teatime-mix-bluemoon_pretrain20231012-0226', type=str)
-    parser.add_argument('--reward_model_path', default="/alg_vepfs/public/models/rm1017", type=str)
     parser.add_argument('--data_path', default='/alg_vepfs/public/datasets/joyland/7days/7days15k_2.json', type=str)
     parser.add_argument('--sample_save_path', default='/alg_vepfs/public/LZY/sample_data', type=str)
-    parser.add_argument('--sample_load_path', default='/alg_vepfs/public/LZY/sample_data/2023-11-09/sample1.json', type=str)
-    parser.add_argument('--sample_reward_save_path', default='/alg_vepfs/public/LZY/sample_data', type=str)
-    parser.add_argument('--sft_save_path', default='/alg_vepfs/public/LZY/sft_data', type=str)
-    parser.add_argument('--batch_size', default=3, type=int)
     parser.add_argument('--model_max_tokens', default=4096, type=int)
     parser.add_argument('--max_context_tokens', default=3900, type=int)
     parser.add_argument('--temperature', default=1.2, type=float)
