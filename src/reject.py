@@ -11,7 +11,8 @@ from models.utils import Message
 
 
 class Reject:
-    def __init__(self, reward_model, reward_tokenizer, max_context_tokens, sample_data, batch_size, result_save_path, sample_save_path, model_device):
+    def __init__(self, reward_model, reward_tokenizer, max_context_tokens, sample_data, batch_size,
+                 result_save_path, sample_save_path, model_device):
         self.reward_model = reward_model
         self.reward_tokenizer = reward_tokenizer
         self.result_save_path = result_save_path
@@ -112,11 +113,11 @@ class Reject:
                     self.prompt_list.append(model_input_prompt)
                     output_data_piece["conversations"].append({"from": "Me", "value": content['value']})
                     output_data_piece["conversations"].append({"from": character_name, "value": uid, "score": 0})
-                    uid += 1
 
                 elif content['from'] == 'sample':
-                    content['score'] = []
+                    content['score'] = uid
                     self.answer_list.append(content['value'])
+                    uid += 1
 
             self.output_data_list.append(output_data_piece)
 
@@ -204,6 +205,32 @@ class Reject:
             self.score_list.append(scores)
 
         assert len(self.score_list) == len(self.prompt_list)
+        self.batch_postprocess()
+
+    def batch_postprocess(self):
+        pbar = tqdm(self.output_data_list)
+        for index, data_piece in enumerate(pbar):
+            dialogue_list = data_piece['conversations']
+            character_name = data_piece['character_name']
+            for t, content in enumerate(dialogue_list):
+                if content['from'] == character_name and t != 1:
+                    uid = content['value']
+                    best_score = -1e9
+                    for i in range(len(self.score_list[uid])):
+                        if self.score_list[uid][i] > best_score:
+                            best_score = self.score_list[uid][i]
+                            best_response = self.answer_list[uid][i]
+                    content['value'] = best_response
+                    content['score'] = best_score
+
+        pbar = tqdm(self.sample_data)
+        for index, data_piece in enumerate(pbar):
+            dialogue_list = data_piece['conversations']
+            character_name = data_piece['character_name']
+            for content in dialogue_list:
+                if content['from'] == 'sample':
+                    uid = content['score']
+                    content['score'] = self.score_list[uid]
 
     def save(self):
         with open(self.result_save_path, mode='w') as f:
