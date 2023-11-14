@@ -9,7 +9,6 @@ from tqdm import tqdm, trange
 from models.utils import ChatRequire
 from models.utils import Message
 from models.prepost import Vicuna11SepStyle, AlpacaSepStyle, Conversations 
-from models.model import LlamaModelForScore, get_single_reward_from_model
 from vllm import SamplingParams
 
 
@@ -122,7 +121,7 @@ class Rollout:
                 generated_text = output.outputs[0].text
                 outputs.append(generated_text)
             outputs_list.append(outputs)
-        
+
         self.outputs_list = outputs_list
 
     def save_samples(self,):

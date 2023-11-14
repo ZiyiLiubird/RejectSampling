@@ -16,7 +16,7 @@ def main(args_dict,):
                                                            trust_remote_code=True,
                                                            use_fast=False, device_map=device)
     model = LLM(model=args_dict['model_path'], tokenizer=args_dict['model_path'], trust_remote_code=True,
-                max_num_batched_tokens=args_dict['max_context_tokens'],
+                max_num_batched_tokens=4096,
                 tensor_parallel_size=1)
 
     args_dict['raw_data'] = raw_data
@@ -49,8 +49,8 @@ if __name__ == '__main__':
     parser.add_argument('--data_path', default='', type=str)
     parser.add_argument('--sample_save_path', default='/alg_vepfs/public/LZY/sample_data', type=str)
     parser.add_argument('--rank', default=0, type=int)
-    parser.add_argument('--max_generate_tokens', default=1000, type=int)
-    parser.add_argument('--max_context_tokens', default=4096, type=int)
+    parser.add_argument('--max_generate_tokens', default=500, type=int)
+    parser.add_argument('--max_context_tokens', default=3500, type=int)
     parser.add_argument('--temperature', default=1.2, type=float)
     parser.add_argument('--do_sample', action='store_true', default=True)
     parser.add_argument('--sample_k', default=5, type=int)
