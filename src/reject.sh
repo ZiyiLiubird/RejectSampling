@@ -1,1 +1,1 @@
-python -u reject_main.py
+nohup python -u reject_main.py &> reject.out &

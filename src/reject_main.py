@@ -50,12 +50,12 @@ def main(args_dict,):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--reward_model_path', default="/alg_vepfs/public/models/rm1017", type=str)
-    parser.add_argument('--sample_load_path', default='/alg_vepfs/public/LZY/sample_data/2023-11-09/sample1.json', type=str)
+    parser.add_argument('--sample_load_path', default='/alg_vepfs/public/LZY/sample_data/2023-11-14/sample_all.json', type=str)
     parser.add_argument('--sample_reward_save_path', default='/alg_vepfs/public/LZY/sample_data', type=str)
     parser.add_argument('--sft_save_path', default='/alg_vepfs/public/LZY/sft_data', type=str)
     parser.add_argument('--batch_size', default=3, type=int)
     parser.add_argument('--model_max_tokens', default=4096, type=int)
-    parser.add_argument('--max_context_tokens', default=3900, type=int)
+    parser.add_argument('--max_context_tokens', default=3500, type=int)
     parser.add_argument('--num_process', default=8, type=int)
 
     args = parser.parse_args()

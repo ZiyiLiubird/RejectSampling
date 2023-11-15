@@ -30,6 +30,7 @@ def rollout(task_id, args_dict):
                     result_save_path=args_dict['sft_save_path'], sample_save_path=args_dict['sample_reward_save_path'],
                     model_device=reward_device)
     reject.batch_reject()
+    reject.save()
 
     return True
 
