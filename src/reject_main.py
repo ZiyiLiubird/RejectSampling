@@ -30,7 +30,7 @@ def main(args_dict,):
             data = samples[i*batch:]
         else:
             data = samples[i*batch: (i+1)*batch]
-        
+
         args_dict['samples'] = data
         worker.start_rollout(task_id=i, args_dict=copy.deepcopy(args_dict))
 
