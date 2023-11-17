@@ -2,9 +2,9 @@ import json
 import os
 
 
-data_path1 = os.path.join('/alg_vepfs/public/LZY/sft_data/2023-11-15')
+data_path1 = os.path.join('/alg_vepfs/public/LZY/sft_data/2023-11-16')
 
-save_path = '/alg_vepfs/public/LZY/sft_data/2023-11-15/sft_all.json'
+save_path = '/alg_vepfs/public/LZY/sft_data/2023-11-16/sft_all.json'
 
 data_list = []
 

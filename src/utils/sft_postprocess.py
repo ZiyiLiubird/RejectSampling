@@ -2,10 +2,10 @@ import json
 import os
 import copy
 
-sft_data_path = '/alg_vepfs/public/LZY/sft_data/2023-11-15'
-samplel_data_path = '/alg_vepfs/public/LZY/sample_data/2023-11-15'
+sft_data_path = '/alg_vepfs/public/LZY/sft_data/2023-11-16'
+samplel_data_path = '/alg_vepfs/public/LZY/sample_data/2023-11-16'
 
-new_sft_data_path = os.path.join(sft_data_path, 'processed_sft_data.json')
+new_sft_data_path = os.path.join(sft_data_path, 'processed_sft_data1.json')
 
 processed_sft_data_list = []
 
@@ -55,5 +55,4 @@ def solve():
 
 
 if __name__ == '__main__':
-    data = json.load(open(os.path.join(new_sft_data_path), "r"))
     solve()

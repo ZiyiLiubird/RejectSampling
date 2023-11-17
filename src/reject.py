@@ -1,3 +1,4 @@
+import copy
 from typing import List
 from tqdm import tqdm, trange
 import json
@@ -12,10 +13,11 @@ from models.utils import Message
 
 class Reject:
     def __init__(self, reward_model, reward_tokenizer, max_context_tokens, sample_data, batch_size,
-                 result_save_path, sample_save_path, model_device):
+                 result_save_path, postprocess_result_path, sample_save_path, model_device):
         self.reward_model = reward_model
         self.reward_tokenizer = reward_tokenizer
         self.result_save_path = result_save_path
+        self.postprocess_result_path = postprocess_result_path
         self.sample_save_path = sample_save_path
         self.max_context_tokens = max_context_tokens
         self.sample_data = sample_data
@@ -231,6 +233,47 @@ class Reject:
                 if content['from'] == 'sample':
                     uid = content['score']
                     content['score'] = self.score_list[uid]
+
+    def sft_postprocess(self):
+        processed_sft_data_list = []
+        sft_data = copy.deepcopy(self.output_data_list)
+        sample_data = copy.deepcopy(self.sample_data)
+        cnt = 0
+        for sample_conv in sample_data:
+            sample_conv_piece = sample_conv['conversations']
+            for index, block in copy.copy(enumerate(sample_conv_piece)):
+                if block['from'] == 'sample':
+                    sample_conv_piece.pop(index)
+
+        for sft_conv, sample_conv in zip(sft_data, sample_data):
+            if len(sft_conv['conversations']) != len(sample_conv['conversations']):
+                continue
+            character_name = sft_conv['character_name']
+            user_name = sft_conv['user_name']
+            sft_conv_piece, sample_conv_piece = sft_conv['conversations'], sample_conv['conversations']
+            output_data_piece = {"character_name": character_name, "user_name": user_name, 'conversations': []}
+            for index, block in enumerate(sft_conv_piece):
+                if block['from'] == 'instruction':
+                    block['train'] = False
+                    output_data_piece['conversations'].append(block)
+                elif (block['from'] == character_name and index == 1) or block['from'] == 'Me':
+                    block['train'] = False
+                    output_data_piece['conversations'].append(block)
+                elif block['from'] == character_name:
+                    temp_data_piece = copy.deepcopy(output_data_piece)
+                    temp_data_piece['id'] = cnt
+                    cnt += 1
+                    block['train'] = True
+                    temp_data_piece['conversations'].append(block)
+                    processed_sft_data_list.append(temp_data_piece)
+                    if sample_conv_piece[index]['from'] != character_name:
+                        break
+                    assert sample_conv_piece[index]['from'] == character_name, print(index, len(sft_conv_piece))
+                    sample_conv_piece[index]['train'] = False
+                    output_data_piece['conversations'].append(sample_conv_piece[index])
+        
+        with open(self.postprocess_result_path, 'w') as file:
+            json.dump(processed_sft_data_list, file, indent=4)
 
     def save(self):
         with open(self.result_save_path, mode='w') as f:

@@ -22,8 +22,17 @@ def get_chat(prompt: str, max_tokens=None, temperature: float = 0,
     return response.choices[0]["text"]
 
 
-save_path = os.path.join('/alg_vepfs/public/datasets/joyland/7days/', '3736sample', '7days3k_0.json')
+# save_path = os.path.join('/alg_vepfs/public/datasets/joyland/7days/', '3736sample', '7days3k_0.json')
 
-raw_data1 = json.load(open(save_path, "r"))
+# raw_data1 = json.load(open(save_path, "r"))
 
-print(len(raw_data1))
+# print(len(raw_data1))
+
+from mpi4py import MPI
+import subprocess
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+world_size = comm.Get_size()
+
+print(rank)
+print(world_size)

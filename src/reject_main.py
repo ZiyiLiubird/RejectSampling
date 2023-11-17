@@ -25,6 +25,9 @@ def main(args_dict,):
     if not os.path.exists(args_dict['sft_save_path']):
         os.makedirs(args_dict['sft_save_path'])
 
+    args_dict['postprocess_sft_save_path'] = os.path.join(args_dict['sft_save_path'], "postprocess")
+    os.makedirs(args_dict['postprocess_sft_save_path'], exist_ok=True)
+
     for i in range(num_process):
         if i == num_process - 1:
             data = samples[i*batch:]
@@ -46,11 +49,24 @@ def main(args_dict,):
             worker.finish()
             break
 
+    postprocessed_sft_data = []
+
+    for root, dirs, fs in os.walk(args_dict['postprocess_sft_save_path']):
+        file_path :str = os.path.join(root, fs)
+        if file_path.endswith(".json"):
+            data = json.load(open(file_path, 'r'))
+            assert type(data) == list
+            postprocessed_sft_data.extend(data)
+    
+    with open(os.path.join(args_dict['postprocess_sft_save_path'], 'postprocessed_sft_all.json'), 'w') as file:
+        json.dump(postprocessed_sft_data, file, indent=4)
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--reward_model_path', default="/alg_vepfs/public/models/rm1017", type=str)
-    parser.add_argument('--sample_load_path', default='/alg_vepfs/public/LZY/sample_data/2023-11-14/sample_all.json', type=str)
+    parser.add_argument('--sample_load_path', default='/alg_vepfs/public/LZY/sample_data/2023-11-16/sample_all.json', type=str)
     parser.add_argument('--sample_reward_save_path', default='/alg_vepfs/public/LZY/sample_data', type=str)
     parser.add_argument('--sft_save_path', default='/alg_vepfs/public/LZY/sft_data', type=str)
     parser.add_argument('--batch_size', default=3, type=int)

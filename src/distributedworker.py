@@ -20,6 +20,7 @@ def rollout(task_id, args_dict):
 
     sft_save_path = args_dict['sft_save_path']
     args_dict['sft_save_path'] = os.path.join(sft_save_path, f"sft{task_id}.json")
+    args_dict['postprocess_sft_save_path'] = os.path.join(args_dict['postprocess_sft_save_path'], f"postprocess_sft{task_id}.json")
 
     reward_device = torch.device(f"cuda:{task_id}")
     reward_model = LlamaModelForScore.from_pretrained(args_dict['reward_model_path']).to(reward_device)
@@ -27,10 +28,12 @@ def rollout(task_id, args_dict):
 
     reject = Reject(reward_model=reward_model, reward_tokenizer=reward_tokenizer, max_context_tokens=args_dict['max_context_tokens'],
                     sample_data=args_dict['samples'], batch_size=args_dict['batch_size'],
-                    result_save_path=args_dict['sft_save_path'], sample_save_path=args_dict['sample_reward_save_path'],
+                    result_save_path=args_dict['sft_save_path'], postprocess_result_path=args_dict['postprocess_sft_save_path'],
+                    sample_save_path=args_dict['sample_reward_save_path'],
                     model_device=reward_device)
     reject.batch_reject()
     reject.save()
+    reject.sft_postprocess()
 
     return True
 

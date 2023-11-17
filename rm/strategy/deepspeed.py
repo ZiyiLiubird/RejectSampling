@@ -17,6 +17,7 @@ from torch import distributed as dist
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader, DistributedSampler
 
+from models.actor import Actor
 
 class DeepspeedStrategy(ABC):
     """
@@ -27,13 +28,14 @@ class DeepspeedStrategy(ABC):
                  max_norm: float = 0.0,
                  micro_train_batch_size = 1,
                  train_batch_size = 1,
-                 zero_stage=2,
+                 zero_stage=3,
                  max_out_tokens=512,
                  inference_tp_size=1,
                  bf16=True,
                  args=None,
-                 ) -> None:
+        ) -> None:
         super().__init__()
+
         self.args = args
         self.stage = zero_stage
         self.train_batch_size = train_batch_size
@@ -56,6 +58,7 @@ class DeepspeedStrategy(ABC):
 
     def setup_distributed(self, timeout=timedelta(minutes=30))-> None:
         self.set_seed(self.seed)
+
         if self.args.local_rank == -1 and "LOCAL_RANK" in os.environ:  # for slurm
             self.args.local_rank = int(os.environ["LOCAL_RANK"])
 
@@ -86,5 +89,18 @@ class DeepspeedStrategy(ABC):
         return DataLoader(replay_buffer, batch_size=batch_size, sampler=sampler, drop_last=drop_last,
                           collate_fn=collate_fn, pin_memory=pin_memory)
 
-    def ds_init_train_model(self, model, optim, scheduler):
-        is_actor = isinstance()
+    def _unwrap_model(self, model) -> nn.Module:
+        if isinstance(model, Actor):
+            return self._unwrap_model(model.model)
+        elif hasattr(model, "module"):
+            return model.module
+        else:
+            return model
+
+    def prepare(
+        self, model,
+    ):
+        return self.ds_init_eval_model(model)
+
+    def ds_init_eval_model(self, model):
+        is_actor = isinstance(model, Actor)
