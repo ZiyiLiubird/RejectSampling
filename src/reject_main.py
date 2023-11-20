@@ -9,6 +9,7 @@ import transformers
 
 from distributedworker import DistributedRollout, rollout
 
+
 def main(args_dict,):
     current_date = datetime.now().strftime('%Y-%m-%d')
     worker = DistributedRollout(worker_num=args_dict['num_process'])
@@ -57,7 +58,7 @@ def main(args_dict,):
             data = json.load(open(file_path, 'r'))
             assert type(data) == list
             postprocessed_sft_data.extend(data)
-    
+
     with open(os.path.join(args_dict['postprocess_sft_save_path'], 'postprocessed_sft_all.json'), 'w') as file:
         json.dump(postprocessed_sft_data, file, indent=4)
 
