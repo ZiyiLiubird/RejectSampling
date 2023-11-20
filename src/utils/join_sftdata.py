@@ -2,16 +2,18 @@ import json
 import os
 
 
-data_path1 = os.path.join('/alg_vepfs/public/LZY/sft_data/2023-11-16')
+data_path1 = os.path.join('/alg_vepfs/public/reject_sampling_dataset')
 
-save_path = '/alg_vepfs/public/LZY/sft_data/2023-11-16/sft_all.json'
+save_path = '/alg_vepfs/public/reject_sampling_dataset/joined/stfdata.json'
 
 data_list = []
 
-for i in range(8):
-    data = json.load(open(os.path.join(data_path1, f"sft{i}.json"), "r"))
-    assert type(data) == list
-    data_list.extend(data)
+data = json.load(open(os.path.join(data_path1, "processed_sft_data.json"), "r"))
+data_list.extend(data)
+
+
+data1 = json.load(open(os.path.join(data_path1, "processed_sft_data1.json"), "r"))
+data_list.extend(data1)
 
 
 with open(save_path, 'w') as file:

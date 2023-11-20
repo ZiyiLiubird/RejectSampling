@@ -1,18 +1,44 @@
 # RejectSampling
 
-1. Sample Rollout
-
 ```bash
-bash sample.sh
+cd src/scripts
 ```
 
+You must set up model_path, data_path, sample_save_path in rollout_main.py, and reward_model_path, sample_load_path, sample_reward_save_path, sft_save_path in reject_main.py.
+
+The batch_size variable can not larger than sample_num.
+
+1. Sample Rollout
+
+First, you should divide your raw dataset into k sub dataset using utils/divide_data.py. k dependes on your GPT nums.
+Then, you should set up process num as k in rollout.sh.
+
+For example, if you have 8 GPUs, then the VARIABLE is from 0 to 7.
+
+```bash
+bash rollout.sh
+```
+
+After that, you should gather sample data into a unified data file using utils/join_sampledata.py.
+
 2. Reject Sampling
+
+You must set up the num_process in reject_main.py, and the num_process should equal to your GPU num.
 
 ```bash
 bash reject.sh
 ```
 
-3. Dataset Formation
+The processed SFT data is stored in sft_save_path/postprocess/ dir.
+
+## Data generated
+
+Four kinds of data will be generated, the first is sampled data. the second is sample_reward data, and the third is sft data, and the fourth is processed_sft_data. All dataset is SFT formation.
+
+sample data is the sample augmented dataset. sample_reward data is added reward score for each sample based on the sample data, and the origin response with its score are added. sft data can be ignored. processed_sft_data, only train last response, the others are used to make up prompt.
+
+
+## Dataset Formation
 
 - raw data
 
