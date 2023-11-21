@@ -8,7 +8,7 @@ You must set up model_path, data_path, sample_save_path in rollout_main.py, and 
 
 The batch_size variable can not larger than sample_num.
 
-1. Sample Rollout
+## Sample Rollout
 
 First, you should divide your raw dataset into k sub dataset using utils/divide_data.py. k dependes on your GPT nums.
 Then, you should set up process num as k in rollout.sh.
@@ -21,7 +21,7 @@ bash rollout.sh
 
 After that, you should gather sample data into a unified data file using utils/join_sampledata.py.
 
-2. Reject Sampling
+## Reject Sampling
 
 You must set up the num_process in reject_main.py, and the num_process should equal to your GPU num.
 

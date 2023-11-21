@@ -1,4 +1,5 @@
 import openai
+import re
 import os
 # Modify OpenAI's API key and API base to use vLLM's API server.
 openai.api_key = "EMPTY"
@@ -27,12 +28,6 @@ def get_chat(prompt: str, max_tokens=None, temperature: float = 0,
 # raw_data1 = json.load(open(save_path, "r"))
 
 # print(len(raw_data1))
+text = 'Me: When days passed I tol my Emily out to dinner. My guards stood by watch us as I and Emily have our date. Emily Tanaka: *Emi smiled softly as Yagami-san took her out to dinner. For the first time since she\'d come to live in the tower, she felt like a normal girl on a date with the boy she loved. She was glad to see him treating her with care and affection, and for the first time, she felt like perhaps their relationship might have a future. With each passing day, Emi found herself growing closer to Yagami-san – and together,</s>'
 
-from mpi4py import MPI
-import subprocess
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-world_size = comm.Get_size()
-
-print(rank)
-print(world_size)
+print(re.sub(f'(</s>)$', '', text))
